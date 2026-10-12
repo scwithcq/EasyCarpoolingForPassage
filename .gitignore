@@ -1,0 +1,35 @@
+# 仓库级通用忽略规则（chat-app 与 chat_app_vue 子目录内的 .gitignore 依然生效）
+
+# 本地环境变量与凭证文件：一律不提交
+.env
+.env.local
+.env.*.local
+*.local.yml
+
+# 构建产物
+target/
+dist/
+node_modules/
+*.class
+
+# IDE / 编辑器
+.idea/
+.vscode/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 日志与临时文件
+*.log
+*.tmp
+*.bak
+
+# 测试/调试产物
+.playwright-mcp/
+
+# 系统文件
+.DS_Store
+Thumbs.db

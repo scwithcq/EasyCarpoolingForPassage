@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chat.mapper.ForumLikeMapper">
+
+    <!-- 新增点赞记录（forum_like 表对 stu_number+target_type+target_id 建有唯一索引，可防重复点赞） -->
+    <insert id="insert">
+        insert into chat_app.forum_like (stu_number, target_type, target_id, create_time)
+        values (#{stuNumber}, #{targetType}, #{targetId}, #{createTime})
+    </insert>
+
+</mapper>

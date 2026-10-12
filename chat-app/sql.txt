@@ -1,0 +1,199 @@
+-- 校易通数据库初始化脚本
+-- 说明：表结构与 chat-pojo 模块实体类保持一致（列名采用驼峰，与 MyBatis 配置 map-underscore-to-camel-case 对应）
+
+create schema if not exists chat_app collate utf8mb3_general_ci;
+
+use chat_app;
+
+-- 用户表
+create table if not exists employee
+(
+    id          int auto_increment
+        primary key,
+    stuNumber   varchar(255)                         not null comment '学号',
+    userImage   varchar(255)                         null comment '头像URL',
+    username    varchar(255)                         not null comment '用户名',
+    password    varchar(255)                         not null comment '密码',
+    phone       varchar(11)                          not null comment '手机号',
+    sex         tinyint(1)                           not null comment '性别：1男 0女',
+    create_time timestamp  default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time timestamp  default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    create_user varchar(255)                         null comment '创建人',
+    update_user varchar(255)                         null comment '更新人',
+    status      tinyint(1) default 1                 not null comment '状态：1启用 0封禁',
+    constraint username unique (username),
+    constraint stuNumber unique (stuNumber)
+) comment '用户表';
+
+-- 拼车订单表
+create table if not exists order_carpool
+(
+    id               int auto_increment
+        primary key,
+    order_id         varchar(255)                         not null comment '订单编号',
+    departure        varchar(255)                         not null comment '出发地',
+    destination      varchar(255)                         not null comment '目的地',
+    departure_time   datetime                             null comment '出发时间',
+    create_time      timestamp  default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time      timestamp  default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    number_of_people int                                  null comment '拼车人数',
+    joined_number    int default 0                        not null comment '已接单人数',
+    remark           varchar(500)                         null comment '备注',
+    status           tinyint(1) default 1                 not null comment '状态：1有效 0失效',
+    stuNumber        varchar(255)                         null comment '发布者学号',
+    username         varchar(255)                         null comment '发布者用户名',
+    phone            varchar(11)                          null comment '联系电话'
+) comment '拼车订单表';
+
+-- 拼车接单记录表
+create table if not exists carpool_join
+(
+    id          int auto_increment
+        primary key,
+    order_id    varchar(255) not null comment '拼车订单编号',
+    stu_number  varchar(255) not null comment '接单人学号',
+    username    varchar(255) not null comment '接单人用户名',
+    phone       varchar(11)  null comment '接单人电话',
+    create_time timestamp default CURRENT_TIMESTAMP null comment '接单时间',
+    constraint uk_join unique (order_id, stu_number)
+) comment '拼车接单记录表';
+
+-- 帖子分类表
+create table if not exists forum_category
+(
+    id     int auto_increment
+        primary key,
+    name   varchar(50)      not null comment '分类名称',
+    sort   int default 0    not null comment '排序值',
+    status tinyint(1) default 1 not null comment '状态：1启用 0停用'
+) comment '帖子分类表';
+
+-- 帖子表
+create table if not exists forum_post
+(
+    id            int auto_increment
+        primary key,
+    post_id       varchar(255) not null comment '帖子编号',
+    title         varchar(100) not null comment '标题',
+    content       text         not null comment '内容',
+    category_id   int          null comment '分类id',
+    stu_number    varchar(255) not null comment '作者学号',
+    username      varchar(255) not null comment '作者用户名',
+    user_image    varchar(255) null comment '作者头像',
+    view_count    int default 0 not null comment '浏览量',
+    like_count    int default 0 not null comment '点赞数',
+    comment_count int default 0 not null comment '评论数',
+    status        tinyint(1) default 1 not null comment '状态：1正常 0删除',
+    create_time   timestamp default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time   timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间'
+) comment '帖子表';
+
+-- 评论表（parent_id 为空为顶级评论，非空为回复）
+create table if not exists forum_comment
+(
+    id             int auto_increment
+        primary key,
+    comment_id     varchar(255)  not null comment '评论编号',
+    post_id        varchar(255)  not null comment '所属帖子编号',
+    content        varchar(1000) not null comment '评论内容',
+    stu_number     varchar(255)  not null comment '评论人学号',
+    username       varchar(255)  not null comment '评论人用户名',
+    user_image     varchar(255)  null comment '评论人头像',
+    parent_id      varchar(255)  null comment '父评论编号，null为顶级评论',
+    reply_username varchar(255)  null comment '被回复用户名',
+    like_count     int default 0 not null comment '点赞数',
+    status         tinyint(1) default 1 not null comment '状态：1正常 0删除',
+    create_time    timestamp default CURRENT_TIMESTAMP null comment '创建时间'
+) comment '评论表';
+
+-- 点赞记录表
+create table if not exists forum_like
+(
+    id          int auto_increment
+        primary key,
+    stu_number  varchar(255) not null comment '点赞人学号',
+    target_type tinyint(1)   not null comment '点赞对象：1帖子 2评论',
+    target_id   varchar(255) not null comment '被点赞对象编号',
+    create_time timestamp default CURRENT_TIMESTAMP null comment '创建时间',
+    constraint uk_like unique (stu_number, target_type, target_id)
+) comment '点赞记录表';
+
+-- 留言墙表（parent_id 为空为顶级留言，非空为回复）
+create table if not exists message_board
+(
+    id             int auto_increment
+        primary key,
+    message_id     varchar(255)  not null comment '留言编号',
+    content        varchar(1000) not null comment '留言内容',
+    stu_number     varchar(255)  not null comment '留言人学号',
+    username       varchar(255)  not null comment '留言人用户名',
+    user_image     varchar(255)  null comment '留言人头像',
+    parent_id      varchar(255)  null comment '父留言编号，null为顶级留言',
+    reply_username varchar(255)  null comment '被回复用户名',
+    status         tinyint(1) default 1 not null comment '状态：1正常 0删除',
+    create_time    timestamp default CURRENT_TIMESTAMP null comment '创建时间'
+) comment '留言墙表';
+
+-- 管理员表
+create table if not exists admin
+(
+    id          int auto_increment
+        primary key,
+    username    varchar(50)                          not null comment '管理员用户名',
+    password    varchar(255)                         not null comment '密码（MD5密文）',
+    name        varchar(50)                          not null comment '姓名',
+    phone       varchar(11)                          null comment '手机号',
+    status      tinyint(1) default 1                 not null comment '状态：1启用 0禁用',
+    create_time timestamp  default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time timestamp  default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint admin_username unique (username)
+) comment '管理员表';
+
+-- 默认管理员账号：admin / 123456（password 为 123456 的 MD5 密文）
+insert into admin (username, password, name, phone, status)
+select 'admin', 'e10adc3949ba59abbe56e057f20f883e', '超级管理员', '13800000000', 1
+where not exists (select 1 from admin where username = 'admin');
+
+-- 公告表
+create table if not exists announcement
+(
+    id          int auto_increment
+        primary key,
+    title       varchar(100)                         not null comment '公告标题',
+    content     text                                not null comment '公告内容',
+    cover_image varchar(255)                        null comment '封面图URL',
+    is_top      tinyint(1) default 0                not null comment '是否置顶：1是 0否',
+    status      tinyint(1) default 1                not null comment '状态：1已发布 0已下线',
+    create_time timestamp  default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time timestamp  default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    create_user bigint                              null comment '创建人（管理员id）',
+    update_user bigint                              null comment '更新人（管理员id）'
+) comment '公告表';
+
+-- 聊天消息表
+create table if not exists chat_message
+(
+    id          int auto_increment
+        primary key,
+    from_name   varchar(255)  not null comment '发送人用户名',
+    to_name     varchar(255)  not null comment '接收人用户名',
+    content     varchar(1000) not null comment '消息内容',
+    is_read     tinyint(1) default 0 not null comment '是否已读：1是 0否',
+    create_time timestamp default CURRENT_TIMESTAMP null comment '发送时间',
+    index idx_chat_dialog (from_name, to_name, create_time),
+    index idx_chat_unread (to_name, is_read)
+) comment '聊天消息表';
+
+-- 帖子分类初始数据
+insert into forum_category (name, sort, status)
+select * from (select '拼车搭子' as name, 1 as sort, 1 as status
+               union all select '二手闲置', 2, 1
+               union all select '学习互助', 3, 1
+               union all select '失物招领', 4, 1
+               union all select '校园闲聊', 5, 1) t
+where not exists (select 1 from forum_category where name = '拼车搭子');
+
+-- 【重要】密码加密迁移：项目已由明文密码改为 MD5 存储
+-- 若数据库中已存在历史用户（明文密码），执行下表语句一次性转换为 MD5 密文，否则旧账号将无法登录
+-- update employee set password = md5(password);
+-- update admin set password = md5(password);

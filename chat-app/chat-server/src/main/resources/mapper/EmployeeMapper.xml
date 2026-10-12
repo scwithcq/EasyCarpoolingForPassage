@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chat.mapper.EmployeeMapper">
+
+
+    <update id="upDatePersonalMessage">
+            update chat_app.employee
+            <set>
+                <if test="username != null">username = #{username},</if>
+                <if test="password != null">password = #{password},</if>
+                <if test="userImage != null">userImage = #{userImage},</if>
+                <if test="phone != null">phone = #{phone},</if>
+                <if test="sex != null">sex = #{sex}</if>
+            </set>
+            <where>
+                stuNumber = #{stuNumber}
+            </where>
+    </update>
+
+    <!-- 管理端：分页查询用户，出于安全考虑不返回 password -->
+    <select id="pageQuery" resultType="com.chat.entity.Employee">
+        select id, stuNumber, userImage, username, phone, sex, status, create_time, update_time
+        from chat_app.employee
+        <where>
+            <if test="stuNumber != null and stuNumber != ''">
+                and stuNumber like concat('%', #{stuNumber}, '%')
+            </if>
+            <if test="username != null and username != ''">
+                and username like concat('%', #{username}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone like concat('%', #{phone}, '%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+</mapper>

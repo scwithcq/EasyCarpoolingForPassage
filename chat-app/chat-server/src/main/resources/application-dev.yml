@@ -1,0 +1,21 @@
+chat:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: ${CHAT_DB_HOST:localhost}
+    port: ${CHAT_DB_PORT:3306}
+    database: ${CHAT_DB_NAME:chat_app}
+    username: ${CHAT_DB_USERNAME:root}
+    # 数据库密码不设默认值，必须通过环境变量 CHAT_DB_PASSWORD 注入
+    password: ${CHAT_DB_PASSWORD}
+  alioss:
+    endpoint: ${CHAT_OSS_ENDPOINT:oss-cn-shenzhen.aliyuncs.com}
+    bucket-name: ${CHAT_OSS_BUCKET_NAME:chat-app-dsc}
+    # 阿里云 OSS 密钥不设默认值，必须通过环境变量注入
+    access-key-id: ${CHAT_OSS_ACCESS_KEY_ID}
+    access-key-secret: ${CHAT_OSS_ACCESS_KEY_SECRET}
+  redis:
+    host: ${CHAT_REDIS_HOST:localhost}
+    port: ${CHAT_REDIS_PORT:6379}
+    database: ${CHAT_REDIS_DATABASE:8}
+    # Redis 密码不设默认值，必须通过环境变量注入
+    password: ${CHAT_REDIS_PASSWORD}

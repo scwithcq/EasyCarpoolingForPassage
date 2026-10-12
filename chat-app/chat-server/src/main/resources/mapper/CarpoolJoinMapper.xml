@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chat.mapper.CarpoolJoinMapper">
+
+    <!-- 分页查询我接单的拼车 -->
+    <select id="getMyJoin" resultType="com.chat.entity.CarpoolOrder">
+        select o.id, o.order_id, o.departure, o.destination, o.departure_time,
+               o.create_time, o.update_time, o.number_of_people, o.joined_number,
+               o.remark, o.status, o.stuNumber, o.username, o.phone
+        from chat_app.carpool_join j
+                 inner join chat_app.order_carpool o on j.order_id = o.order_id
+        where j.stu_number = #{stuNumber} and o.status = 1
+        order by j.create_time desc
+    </select>
+
+</mapper>

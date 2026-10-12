@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chat.mapper.CarpoolOrderMapper">
+
+    <!-- 用户端：分页查询我发布的拼车 -->
+    <select id="getMyCarpool" resultType="com.chat.entity.CarpoolOrder">
+        select id, order_id, departure, destination, departure_time,
+               create_time, update_time, number_of_people, joined_number, remark, status,
+               stuNumber, username, phone
+        from chat_app.order_carpool
+        where stuNumber = #{stuNumber} and status = 1
+        order by create_time desc
+    </select>
+
+    <!-- 用户端：修改拼车信息 -->
+    <update id="updateCarpool">
+        update chat_app.order_carpool
+        <set>
+            <if test="departure != null">departure = #{departure},</if>
+            <if test="destination != null">destination = #{destination},</if>
+            <if test="departureTime != null">departure_time = #{departureTime},</if>
+            <if test="numberOfPeople != null">number_of_people = #{numberOfPeople},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="updateTime != null">update_time = #{updateTime}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 管理端：分页查询拼车订单 -->
+    <select id="pageQuery" resultType="com.chat.entity.CarpoolOrder">
+        select id, order_id, departure, destination, departure_time,
+               create_time, update_time, number_of_people, joined_number, remark, status,
+               stuNumber, username, phone
+        from chat_app.order_carpool
+        <where>
+            <if test="stuNumber != null and stuNumber != ''">
+                and stuNumber = #{stuNumber}
+            </if>
+            <if test="departure != null and departure != ''">
+                and departure like concat('%', #{departure}, '%')
+            </if>
+            <if test="destination != null and destination != ''">
+                and destination like concat('%', #{destination}, '%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+</mapper>
